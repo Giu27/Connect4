@@ -9,7 +9,7 @@ pg.display.set_caption("Connect 4!")
 
 clock = pg.Clock()
 
-grid = [[0 for column in range(COLUMNS)] for row in range(ROWS)]
+grid = [[0 for column in range(COLUMNS)] for row in range(ROWS)] #Will be used by the actual logic of the game
 
 def drawGrid():
     sideOffset = int(WIDTH * (SIDE_PADDING / 100))
@@ -17,15 +17,15 @@ def drawGrid():
     bottomOffset = int(HEIGHT * (BOTTOM_PADDING / 100))
     actualWidth = WIDTH - sideOffset * 2
     actualHeight = HEIGHT - topOffset - bottomOffset
-    hStep = (actualWidth - 2 * RADIUS) / (COLUMNS - 1) if COLUMNS > 1 else 0
+    hStep = (actualWidth - 2 * RADIUS) / (COLUMNS - 1) if COLUMNS > 1 else 0 #Prevents division by 0 if only one column or row
     vStep = (actualHeight - 2 * RADIUS) / (ROWS - 1) if ROWS > 1 else 0
-
     
     for r in range(ROWS):
         for c in range(COLUMNS):
             center = (RADIUS + sideOffset + hStep * c , RADIUS + topOffset  + vStep * r)
             pg.draw.circle(screen, EMPTY_COLOUR, center, RADIUS)
-            if DEBUG: 
+            
+            if DEBUG: #Draw debug lines to check proper position
                 pg.draw.line(screen, "red", (0,10), (sideOffset, 10))
                 pg.draw.line(screen, "red", (WIDTH,10), (WIDTH - sideOffset, 10))
                 pg.draw.line(screen, "green", (sideOffset, 0), (sideOffset, topOffset))
