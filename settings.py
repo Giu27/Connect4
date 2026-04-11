@@ -6,14 +6,20 @@ DEBUG = False
 #Colours
 BACKGROUND_COLOUR = "lightgray"
 EMPTY_COLOUR = "white"
-PLAYER1_COLOUR = "red"
-PLAYER2_COLOUR = "blue"
+PLAYER1_COLOUR = "darkred"
+PLAYER2_COLOUR = "darkblue"
+PLAYER1_INNER_COLOUR = "red"
+PLAYER2_INNER_COLOUR = "blue"
 
 #Grid
-ROWS, COLUMNS = 4, 7
+ROWS, COLUMNS = 6, 8
 SIDE_PADDING = 10 #This is a percentages
 TOP_PADDING = 10  #This as well
 BOTTOM_PADDING = 5 #And this
 
-#Circles
+#Counters
 RADIUS = 60
+BORDER_PERCENTAGE = 20
+BASE_SPEED = 1
+STARTING_MULTIPLIER = 0.1
+MULTIPLIER_INCREASE = 0.1
