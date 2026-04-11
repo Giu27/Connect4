@@ -16,7 +16,7 @@ class Counter(pg.sprite.Sprite):
         inner_radius = RADIUS * (1 - BORDER_PERCENTAGE / 100)
         pg.draw.circle(self.image, inner_colour, (RADIUS, RADIUS), inner_radius)
 
-        self.target = calculateCounterCenter(gridPos[0], gridPos[1], sideOffset, topOffset, bottomOffset)
+        self.target = calculateCounterCenter(gridPos[0], gridPos[1])
 
         self.rect = self.image.get_rect()
         self.rect.bottomleft = (self.target[0] - RADIUS, topOffset)
@@ -39,14 +39,24 @@ pg.display.set_caption("Connect 4!")
 
 clock = pg.Clock()
 
+currentPlayer = 1
 grid = [[0 for column in range(COLUMNS)] for row in range(ROWS)] #Will be used by the actual logic of the game
+getRow = [ROWS - 1 for column in range(COLUMNS)]
+counters = pg.sprite.Group()
 
-counters = pg.sprite.Group(Counter(1, (0,0)), Counter(2, (5,4)))
+def reset():
+    """Resets game to initial state"""
+    global grid, currentPlayer, getRow
+    grid = [[0 for column in range(COLUMNS)] for row in range(ROWS)]
+    getRow = [ROWS - 1 for column in range(COLUMNS)]
+    counters.empty()
+    currentPlayer = 1
 
-def drawGrid():    
+def drawGrid():
+    """Draws the holes for the counters"""    
     for r in range(ROWS):
         for c in range(COLUMNS):
-            center = calculateCounterCenter(r, c, sideOffset, topOffset, bottomOffset)
+            center = calculateCounterCenter(r, c)
             pg.draw.circle(screen, EMPTY_COLOUR, center, RADIUS)
             
             if DEBUG: #Draw debug lines to check proper position
@@ -59,7 +69,7 @@ def drawGrid():
                 pg.draw.line(screen, "red", center, (center[0], 10))
                 pg.draw.line(screen, "green", (center[0] - RADIUS, center[1] - RADIUS), (center[0] + RADIUS, center[1] - RADIUS))
                 pg.draw.line(screen, "green", (center[0] - RADIUS, center[1] + RADIUS), (center[0] + RADIUS, center[1] + RADIUS))
-
+    
 if __name__ == "__main__":
     while True:
         for event in pg.event.get():
@@ -69,6 +79,21 @@ if __name__ == "__main__":
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     DEBUG = not DEBUG
+                if event.key == pg.K_r:
+                    reset()
+
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if len(counters.sprites()) == 0: ready = True
+                    elif counters.sprites()[-1].placed: ready = True
+                    else: ready = False
+                    if ready:
+                        chosenColumn = getColumn(event.pos[0])
+                        availableRow = getRow[chosenColumn]
+                        if availableRow >= 0:
+                            counters.add(Counter(currentPlayer, (availableRow,chosenColumn)))
+                            currentPlayer = 2 if currentPlayer == 1 else 1
+                            getRow[chosenColumn] -= 1
 
         screen.fill(BACKGROUND_COLOUR)
 
@@ -76,6 +101,14 @@ if __name__ == "__main__":
 
         counters.update()
         counters.draw(screen)
+
+        if DEBUG:
+            for sprite in counters:
+                pg.draw.rect(screen,"purple",sprite.rect,2)
+
+            print(f"FPS: {int(clock.get_fps())}")
+            print(f"Current Player: {currentPlayer}")
+            print(f"Counters count: {len(counters.sprites())}")
 
         clock.tick(FPS)
         pg.display.update()
