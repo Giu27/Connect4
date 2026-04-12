@@ -21,4 +21,4 @@ def getColumn(mouse_x : int, sideOffset : int = sideOffset):
         return COLUMNS - 1
     actualWidth = WIDTH + (-sideOffset + RADIUS) * 2
     hStep = actualWidth / COLUMNS
-    return int(math.floor((mouse_x - sideOffset * 2 - RADIUS) // hStep)) #TO BE FIXED
+    return int(math.floor((mouse_x - sideOffset + RADIUS) // hStep))
