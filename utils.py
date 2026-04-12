@@ -5,7 +5,7 @@ sideOffset = int(WIDTH * (SIDE_PADDING / 100))
 topOffset = int(HEIGHT * (TOP_PADDING / 100))
 bottomOffset = int(HEIGHT * (BOTTOM_PADDING / 100))
 
-def calculateCounterCenter(row : int, column : int, sideOffset : int = sideOffset, topOffset : int = topOffset, bottomOffset : int = bottomOffset):
+def calculateCounterCenter(row : int, column : int, sideOffset : int = sideOffset, topOffset : int = topOffset, bottomOffset : int = bottomOffset) -> int:
     """Given the row and column (plus the offsets), returns the counter's center"""
     actualWidth = WIDTH - sideOffset * 2
     actualHeight = HEIGHT - topOffset - bottomOffset
@@ -13,7 +13,7 @@ def calculateCounterCenter(row : int, column : int, sideOffset : int = sideOffse
     vStep = (actualHeight - 2 * RADIUS) / (ROWS - 1) if ROWS > 1 else 0
     return (RADIUS + sideOffset + hStep * column , RADIUS + topOffset  + vStep * row)
 
-def getColumn(mouse_x : int, sideOffset : int = sideOffset):
+def getColumn(mouse_x : int, sideOffset : int = sideOffset) -> int:
     """Given the mouse cursor x coordinate (and the offset), returns the column"""
     if mouse_x <= sideOffset:
         return 0

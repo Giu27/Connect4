@@ -9,7 +9,7 @@ class Counter(pg.sprite.Sprite):
     def __init__(self, player : int, gridPos : tuple[int, int]):
         super().__init__()
         self.image = pg.Surface((RADIUS * 2, RADIUS * 2), pg.SRCALPHA, 32)
-        colour = PLAYER1_COLOUR if player == 1 else PLAYER2_COLOUR
+        colour = PLAYER1_BORDER_COLOUR if player == 1 else PLAYER2_BORDER_COLOUR
         pg.draw.circle(self.image, colour, (RADIUS, RADIUS), RADIUS)
 
         inner_colour = PLAYER1_INNER_COLOUR if player == 1 else PLAYER2_INNER_COLOUR
@@ -43,14 +43,16 @@ currentPlayer = 1
 grid = [[0 for column in range(COLUMNS)] for row in range(ROWS)] #Will be used by the actual logic of the game
 getRow = [ROWS - 1 for column in range(COLUMNS)]
 counters = pg.sprite.Group()
+win = False
 
 def reset():
     """Resets game to initial state"""
-    global grid, currentPlayer, getRow
+    global grid, currentPlayer, getRow, win
     grid = [[0 for column in range(COLUMNS)] for row in range(ROWS)]
     getRow = [ROWS - 1 for column in range(COLUMNS)]
     counters.empty()
     currentPlayer = 1
+    win = False
 
 def drawGrid():
     """Draws the holes for the counters"""    
@@ -69,7 +71,41 @@ def drawGrid():
                 pg.draw.line(screen, "red", center, (center[0], 10))
                 pg.draw.line(screen, "green", (center[0] - RADIUS, center[1] - RADIUS), (center[0] + RADIUS, center[1] - RADIUS))
                 pg.draw.line(screen, "green", (center[0] - RADIUS, center[1] + RADIUS), (center[0] + RADIUS, center[1] + RADIUS))
+
+def check(player : int, gridPos : tuple[int, int], move : tuple[int, int]) -> int:
+    counters = 1
+    for i in range(1, COUNTERS_TO_WIN): 
+        if grid[gridPos[0] + move[0] * i][gridPos[1] + move[1] * i] != player:
+            counters = 1
+            break
+        else:
+            counters += 1
+            if counters == COUNTERS_TO_WIN: break
+    return counters
+
+def checkWin(player : int, gridPos : tuple[int, int]) -> bool:
+    """Given a player and the last counter placed by that player, returns true if the player won"""
+    counters = 1
+    if gridPos[0] <= ROWS - COUNTERS_TO_WIN: #Check vertical win
+        counters = check(player, gridPos, (1, 0))
+
+    if gridPos[1] <= COLUMNS - COUNTERS_TO_WIN and counters != COUNTERS_TO_WIN:
+        if gridPos[0] <= ROWS - COUNTERS_TO_WIN: #Check right diagonal win.
+            counters = check(player, gridPos, (1, 1))
+        if counters != COUNTERS_TO_WIN: #check right horizontal
+            counters = check(player, gridPos, (0, 1))
     
+    if gridPos[1] >= 0 + COUNTERS_TO_WIN and counters != COUNTERS_TO_WIN:
+        if gridPos[0] <= ROWS - COUNTERS_TO_WIN: #Check left diagonal win.
+            counters = check(player, gridPos, (1, -1))
+        if counters != COUNTERS_TO_WIN: #check left horizontal
+            counters = check(player, gridPos, (0, -1))
+
+    if counters == COUNTERS_TO_WIN:
+        return True
+    else: 
+        return False
+
 if __name__ == "__main__":
     while True:
         for event in pg.event.get():
@@ -84,16 +120,25 @@ if __name__ == "__main__":
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    if len(counters.sprites()) == 0: ready = True
-                    elif counters.sprites()[-1].placed: ready = True
-                    else: ready = False
-                    if ready:
-                        chosenColumn = getColumn(event.pos[0])
-                        availableRow = getRow[chosenColumn]
-                        if availableRow >= 0:
-                            counters.add(Counter(currentPlayer, (availableRow,chosenColumn)))
-                            currentPlayer = 2 if currentPlayer == 1 else 1
-                            getRow[chosenColumn] -= 1
+                    if win:
+                        print("Press R to reset!")
+                    else:
+                        if len(counters.sprites()) == 0: ready = True
+                        elif counters.sprites()[-1].placed: ready = True
+                        else: ready = False
+                        if ready:
+                            chosenColumn = getColumn(event.pos[0])
+                            availableRow = getRow[chosenColumn]
+                            if availableRow >= 0:
+                                counters.add(Counter(currentPlayer, (availableRow,chosenColumn)))
+                                grid[availableRow][chosenColumn] = currentPlayer
+                                win = checkWin(currentPlayer, (availableRow, chosenColumn))
+
+                                if not win:
+                                    currentPlayer = 2 if currentPlayer == 1 else 1
+                                    getRow[chosenColumn] -= 1
+        if win and counters.sprites()[-1].placed:
+            print(f"{currentPlayer} won!")
 
         screen.fill(BACKGROUND_COLOUR)
 

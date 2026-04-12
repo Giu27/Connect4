@@ -3,11 +3,14 @@ WIDTH, HEIGHT = 1920, 1080
 FPS = 60
 DEBUG = False
 
+#Game
+COUNTERS_TO_WIN = 4
+
 #Colours
 BACKGROUND_COLOUR = "lightgray"
 EMPTY_COLOUR = "white"
-PLAYER1_COLOUR = "darkred"
-PLAYER2_COLOUR = "darkblue"
+PLAYER1_BORDER_COLOUR = "darkred"
+PLAYER2_BORDER_COLOUR = "darkblue"
 PLAYER1_INNER_COLOUR = "red"
 PLAYER2_INNER_COLOUR = "blue"
 
