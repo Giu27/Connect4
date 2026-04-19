@@ -44,15 +44,17 @@ grid = [[0 for column in range(COLUMNS)] for row in range(ROWS)] #Will be used b
 getRow = [ROWS - 1 for column in range(COLUMNS)]
 counters = pg.sprite.Group()
 win = False
+draw = False
 
 def reset():
     """Resets game to initial state"""
-    global grid, currentPlayer, getRow, win
+    global grid, currentPlayer, getRow, win, draw
     grid = [[0 for column in range(COLUMNS)] for row in range(ROWS)]
     getRow = [ROWS - 1 for column in range(COLUMNS)]
     counters.empty()
     currentPlayer = 1
     win = False
+    draw = False
 
 def drawGrid():
     """Draws the holes for the counters"""    
@@ -95,7 +97,7 @@ def checkWin(player : int, gridPos : tuple[int, int]) -> bool:
         if counters != COUNTERS_TO_WIN: #check right horizontal
             counters = check(player, gridPos, (0, 1))
     
-    if gridPos[1] >= 0 + COUNTERS_TO_WIN and counters != COUNTERS_TO_WIN:
+    if gridPos[1] >= COUNTERS_TO_WIN - 1 and counters != COUNTERS_TO_WIN:
         if gridPos[0] <= ROWS - COUNTERS_TO_WIN: #Check left diagonal win.
             counters = check(player, gridPos, (1, -1))
         if counters != COUNTERS_TO_WIN: #check left horizontal
@@ -120,7 +122,7 @@ if __name__ == "__main__":
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    if win:
+                    if win or draw:
                         print("Press R to reset!")
                     else:
                         if len(counters.sprites()) == 0: ready = True
@@ -137,7 +139,13 @@ if __name__ == "__main__":
                                 if not win:
                                     currentPlayer = 2 if currentPlayer == 1 else 1
                                     getRow[chosenColumn] -= 1
+
+        if len(counters.sprites()) == ROWS * COLUMNS:
+            draw = True
+        
         if win and counters.sprites()[-1].placed:
+            print(f"{currentPlayer} won!")
+        if draw and counters.sprites()[-1].placed:
             print(f"{currentPlayer} won!")
 
         screen.fill(BACKGROUND_COLOUR)
